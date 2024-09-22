@@ -5,7 +5,7 @@
 template <typename T>
 class unique_ptr {
 public:
-  unique_ptr(ptr) : ptr(nullptr) {}
+  unique_ptr(ptr) : ptr(ptr) {}
   unique_ptr(unique_ptr&& oth) {
     ptr = std::exchange(oth.ptr, nullptr);
   }
@@ -18,6 +18,7 @@ public:
   }
   ~unique_ptr() {
     delete ptr;
+    ptr = nullptr;
   }
   T* get() {
     return ptr;
@@ -28,18 +29,19 @@ public:
   T* operator->() {
     return ptr;
   }
-  T* reset(T* pt) {
+  T* reset(T* pt = nullptr) {
+    delete ptr;
     ptr = pt;
-    delete pt;
   }
   T* release() {
     T* tmp = ptr;
     ptr = nullptr;
     return tmp;
   }
-   swap(T* pt) {
+  swap(T* pt) {
     std::swap(ptr, pt.ptr);
   }
 private:
-  T* ptr;
+  T* ptr = nullptr;
 };
+
