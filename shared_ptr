@@ -1,0 +1,83 @@
+#include <iostream>
+#include <memory>
+
+
+template <typename T>
+class shared_ptr {
+public:
+    shared_ptr() : ptr(nullptr), count(new int(1)) {}
+    ~shared_ptr() {
+        if (count == 0) {
+            delete ptr;
+            ptr = nullptr;
+        } else {
+            count--;
+        }
+    }
+
+    shared_ptr(const shared_ptr& oth) {
+        ptr = oth.ptr;
+        count = oth.count;
+        (*count)++;
+    }
+
+    shared_ptr(shared_ptr&& oth) {
+        ptr = oth.ptr;
+        count = oth.count;
+        oth.ptr = nullptr;
+        oth.count = nullptr;
+    }
+
+    shared_ptr& operator=(const shared_ptr& oth) {
+        if (this != &oth) {
+            ptr = oth.ptr;
+            count = oth.count;
+            *count += 1;
+        }
+
+        return *this;
+    }
+
+    shared_ptr& operator=(shared_ptr&& oth) {
+        if (this != &oth) {
+            ptr = oth.ptr;
+            count = oth.count;
+            oth.ptr = nullptr;
+            oth.count = nullptr;
+        }
+
+        return *this;
+    }
+
+    T use_count() {
+        return *count;
+    }
+
+    T* get() {
+        return ptr;
+    }
+
+    T& operator*() {
+        return *ptr;
+    }
+
+    T* operator->() {
+        return ptr;
+    }
+
+    void reset(T* new_ptr = nullptr) {
+        if (ptr) {
+            --(*count);
+            if (*count == 0) {
+                delete ptr;
+                delete count;
+            }
+        }
+        ptr = new_ptr;
+        count = new int(1);
+    }
+    
+private:
+    T* ptr;
+    int* count; 
+};
