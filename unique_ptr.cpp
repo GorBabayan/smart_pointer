@@ -1,11 +1,11 @@
-  #include <iostream>
+#include <iostream>
 #include <memory>
 
 
 template <typename T>
 class unique_ptr {
 public:
-  unique_ptr(ptr) : ptr(ptr) {}
+  unique_ptr(ptr) : ptr(nullptr) {}
   unique_ptr(unique_ptr&& oth) {
     ptr = std::exchange(oth.ptr, nullptr);
   }
@@ -41,5 +41,5 @@ public:
     std::swap(ptr, pt.ptr);
   }
 private:
-  T* ptr = nullptr;
+  T* ptr;
 };
