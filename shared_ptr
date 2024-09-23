@@ -10,7 +10,7 @@ public:
     shared_ptr(T* str) : ptr(str), count(new int(1)) {}
 
     ~shared_ptr() {
-        release();
+        del();
     }
 
     shared_ptr(const shared_ptr& oth) {
@@ -28,7 +28,7 @@ public:
 
     shared_ptr& operator=(const shared_ptr& oth) {
         if (this != &oth) {
-            release();
+            del();
             ptr = oth.ptr;
             count = oth.count;
             *count += 1;
@@ -39,7 +39,7 @@ public:
 
     shared_ptr& operator=(shared_ptr&& oth) {
         if (this != &oth) {
-            release();
+            del();
             ptr = oth.ptr;
             count = oth.count;
             oth.ptr = nullptr;
@@ -65,14 +65,23 @@ public:
         return ptr;
     }
 
+    T* release() {
+        T* tmp = std::exchange(ptr, nullptr);
+        if (--(*count) == 0) {
+            delete count;
+            count = nullptr;
+        }
+        return tmp; 
+    }
+
     void reset(T* new_ptr = nullptr) {
-        release();
+        del();
         ptr = new_ptr;
         count = new int(1);
     }
     
 private:
-    void release() {
+    void del() {
         if(--(*count) == 0) {
             delete ptr;
             delete count;
