@@ -6,13 +6,11 @@ template <typename T>
 class shared_ptr {
 public:
     shared_ptr() : ptr(nullptr), count(new int(1)) {}
+
+    shared_ptr(T* str) : ptr(str), count(new int(1)) {}
+
     ~shared_ptr() {
-        if (count == 0) {
-            delete ptr;
-            ptr = nullptr;
-        } else {
-            count--;
-        }
+        release();
     }
 
     shared_ptr(const shared_ptr& oth) {
@@ -30,6 +28,7 @@ public:
 
     shared_ptr& operator=(const shared_ptr& oth) {
         if (this != &oth) {
+            release();
             ptr = oth.ptr;
             count = oth.count;
             *count += 1;
@@ -40,6 +39,7 @@ public:
 
     shared_ptr& operator=(shared_ptr&& oth) {
         if (this != &oth) {
+            release();
             ptr = oth.ptr;
             count = oth.count;
             oth.ptr = nullptr;
@@ -49,7 +49,7 @@ public:
         return *this;
     }
 
-    T use_count() {
+    int use_count() {
         return *count;
     }
 
@@ -66,18 +66,19 @@ public:
     }
 
     void reset(T* new_ptr = nullptr) {
-        if (ptr) {
-            --(*count);
-            if (*count == 0) {
-                delete ptr;
-                delete count;
-            }
-        }
+        release();
         ptr = new_ptr;
         count = new int(1);
     }
     
 private:
+    void release() {
+        if(--(*count) == 0) {
+            delete ptr;
+            delete count;
+        }
+    }
+
     T* ptr;
     int* count; 
 };
